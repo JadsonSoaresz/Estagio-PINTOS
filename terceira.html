@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcular Frete</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #00fff2;
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px 0;
+        }
+        .resultado {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        button {
+            padding: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            background-color: rgb(0, 68, 255);
+            border: 0;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: .2s;
+        }
+        button:hover, form .btn-enviar input:hover{
+            box-shadow: 0px 0px 8px rgb(0, 4, 255);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <h1>Calcular Frete</h1>
+    <br>
+    <br>
+    <div>Peso do Pedido (kg):</div>
+    <label for="peso"></label>
+    <input type="number" id="peso" step="0.01" min="0">
+    <br>
+    <br>
+    <br>
+    <div>Distância para a Entrega (km):</div>
+    <label for="distancia"></label>
+    <input type="number" id="distancia" step="0.1" min="0">
+    <br>
+    <br>
+    <br>
+    <button onclick="calcularEExibirFrete()">Calcular Frete</button>
+    <div class="resultado" id="resultado"></div>
+
+    <script>
+        // Tabela de preços
+        const tabelaPrecos = {
+            '0-1,0-5': 10.0,    // Até 1 kg e até 5 km: R$ 10.00
+            '0-1,6-10': 15.0,   // Até 1 kg e 6-10 km: R$ 15.00
+            '1-5,0-5': 20.0,    // 1-5 kg e até 5 km: R$ 20.00
+            '1-5,6-10': 25.0,   // 1-5 kg e 6-10 km: R$ 25.00
+            '5-10,0-5': 30.0,   // 5-10 kg e até 5 km: R$ 30.00
+            '5-10,6-10': 35.0   // 5-10 kg e 6-10 km: R$ 35.00
+        };
+
+        function calcularFrete(peso, distancia, tabela) {
+            // Verifica se o peso ou a distância excedem o máximo permitido
+            if (peso > 10) {
+                return 'Objeto muito pesado, máximo 10 kilos.';
+            }
+            if (distancia > 10) {
+                return 'Entrega muito longa, máximo 10 kilometros.';
+            }
+
+            // Encontrar a chave correspondente na tabela de preços
+            for (let chave in tabela) {
+                const [pesoFaixa, distanciaFaixa] = chave.split(',');
+                const [pesoMin, pesoMax] = pesoFaixa.split('-').map(Number);
+                const [distanciaMin, distanciaMax] = distanciaFaixa.split('-').map(Number);
+                
+                if (peso >= pesoMin && peso <= pesoMax && distancia >= distanciaMin && distancia <= distanciaMax) {
+                    return tabela[chave];
+                }
+            }
+            return 'Faixa de peso ou distância não encontrada.';
+        }
+
+        function calcularEExibirFrete() {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const distancia = parseFloat(document.getElementById('distancia').value);
+            const resultado = document.getElementById('resultado');
+            
+            if (isNaN(peso) || isNaN(distancia)) {
+                resultado.textContent = 'Por favor, insira valores válidos.';
+                return;
+            }
+            
+            const valorFrete = calcularFrete(peso, distancia, tabelaPrecos);
+            if (typeof valorFrete === 'number') {
+                resultado.textContent = `Valor do Frete: R$ ${valorFrete.toFixed(2)}`;
+            } else {
+                resultado.textContent = valorFrete;
+            }
+        }
+    </script>
+</body>
+</html>

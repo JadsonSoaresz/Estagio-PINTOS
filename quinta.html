@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Vendas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #00fff2;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #00fff2;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #00e1ff;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        button {
+            padding: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            background-color: rgb(0, 68, 255);
+            border: 0;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: .2s;
+}
+        button:hover, form .btn-enviar input:hover{
+            box-shadow: 0px 0px 8px rgb(0, 4, 255);
+            transform: scale(1.05);
+}
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Relatório de Vendas</h1>
+        <form id="formulario">
+            <label for="dataInicio">Data de Início:</label>
+            <input type="date" id="dataInicio" required>
+            <br><br>
+            <label for="dataFim">Data de Fim:</label>
+            <input type="date" id="dataFim" required>
+            <br><br>
+            <button type="button" onclick="gerarRelatorioNaPagina()">Gerar Relatório</button>
+        </form>
+        <h2>Relatório:</h2>
+        <div id="relatorio"></div>
+    </div>
+
+    <script>
+        const vendas = [
+            { sku: 1001, quantidade: 2, valorTotal: 50.00, data: '2021-01-01' },
+            { sku: 1002, quantidade: 1, valorTotal: 20.00, data: '2021-01-01' },
+            { sku: 1003, quantidade: 5, valorTotal: 100.00, data: '2021-01-02' },
+            { sku: 1001, quantidade: 1, valorTotal: 25.00, data: '2021-01-02' }
+        ];
+
+        function gerarRelatorio(vendas, dataInicio, dataFim) {
+            // Filtra as vendas dentro do intervalo de datas
+            const vendasNoPeriodo = vendas.filter(venda => {
+                const dataVenda = new Date(venda.data);
+                return dataVenda >= new Date(dataInicio) && dataVenda <= new Date(dataFim);
+            });
+
+            // Inicializa o objeto para armazenar os totais por SKU
+            const totaisPorSKU = {};
+
+            // Calcula os totais por SKU
+            vendasNoPeriodo.forEach(venda => {
+                if (!totaisPorSKU[venda.sku]) {
+                    totaisPorSKU[venda.sku] = { quantidadeTotal: 0, valorTotal: 0 };
+                }
+                totaisPorSKU[venda.sku].quantidadeTotal += venda.quantidade;
+                totaisPorSKU[venda.sku].valorTotal += venda.valorTotal;
+            });
+
+            // Calcula o valor total vendido no período
+            const valorTotalVendido = vendasNoPeriodo.reduce((total, venda) => total + venda.valorTotal, 0);
+
+            // Prepara o relatório
+            return {
+                totaisPorSKU,
+                valorTotalVendido
+            };
+        }
+
+        function gerarRelatorioNaPagina() {
+            // Obtém as datas do formulário
+            const dataInicio = document.getElementById('dataInicio').value;
+            const dataFim = document.getElementById('dataFim').value;
+
+            // É exibido caso ambas as datas não estejam preenchidas
+            if (!dataInicio || !dataFim) {
+                alert('Por favor, preencha ambas as datas.');
+                return;
+            }
+
+            // Gera o relatório
+            const relatorio = gerarRelatorio(vendas, dataInicio, dataFim);
+
+            // Exibe o relatório
+            exibirRelatorio(relatorio);
+        }
+
+        function exibirRelatorio(relatorio) {
+            let html = '<h3>Total Vendido por SKU</h3>';
+            html += '<table><tr><th>SKU</th><th>Quantidade Total</th><th>Valor Total (R$)</th></tr>';
+
+            for (const sku in relatorio.totaisPorSKU) {
+                const dados = relatorio.totaisPorSKU[sku];
+                html += `<tr><td>${sku}</td><td>${dados.quantidadeTotal}</td><td>${dados.valorTotal.toFixed(2)}</td></tr>`;
+            }
+
+            html += '</table>';
+            html += `<h3>Valor Total Vendido no Período: R$ ${relatorio.valorTotalVendido.toFixed(2)}</h3>`;
+
+            document.getElementById('relatorio').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
