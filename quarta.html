@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atualizar Estoque</title>
+    <script>
+        // Lista de itens vendidos
+        const itensVendidos = [
+            { sku: 1001, quantidade: 2 },
+            { sku: 1002, quantidade: 1 },
+            { sku: 1003, quantidade: 5 }
+        ];
+
+        // Estoque atual
+        let estoque = [
+            { sku: 1001, quantidade: 5 },
+            { sku: 1002, quantidade: 2 },
+            { sku: 1003, quantidade: 5 }
+        ];
+
+        // Função para atualizar o estoque após uma venda
+        function atualizarEstoque(itensVendidos, estoque) {
+            itensVendidos.forEach(itemVendido => {
+                const itemEstoque = estoque.find(item => item.sku === itemVendido.sku);
+
+                if (itemEstoque) {
+                    itemEstoque.quantidade -= itemVendido.quantidade;
+
+                    if (itemEstoque.quantidade < 0) {
+                        itemEstoque.quantidade = 0;
+                    }
+                }
+            });
+
+            return estoque;
+        }
+
+        // Função para exibir o estoque atualizado na página
+        function exibirEstoqueAtualizado() {
+            const estoqueAtualizado = atualizarEstoque(itensVendidos, estoque);
+
+            const estoqueDiv = document.getElementById('estoque');
+            estoqueDiv.innerHTML = ''; // Limpa qualquer conteúdo anterior
+
+            estoqueAtualizado.forEach(item => {
+                estoqueDiv.innerHTML += `<p>SKU: ${item.sku} - Quantidade em Estoque: ${item.quantidade}</p>`;
+            });
+        }
+        exibirEstoqueAtualizado
+    </script>
+</head>
+<body>
+    <h1>Atualizar Estoque Após Venda</h1>
+    
+    <!-- Botão para atualizar o estoque -->
+    <button onclick="exibirEstoqueAtualizado()">Atualizar Estoque</button>
+
+    <!-- Div para exibir o estoque atualizado -->
+    <div id="estoque"></div>
+</body>
+</html>
